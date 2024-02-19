@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Test</title>
+    <meta property="og:description" content="Use extrusions to display buildings' height in 3D." />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.0.1/dist/maplibre-gl.css" />
+    <script src="https://unpkg.com/maplibre-gl@4.0.1/dist/maplibre-gl.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #map {
+        position: absolute;
+        height: 100vh;
+        width: 100%;
+        background: #202020;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+    <script>
+      const map = new maplibregl.Map({
+        style: {
+          version: 8,
+          name: "Raster Tiles",
+          glyphs:
+            "https://smellman.github.io/creating_tiles_with_global_map_support_files/2015/mapbox_vector_tile_demo/demosites/fonts/{fontstack}/{range}.pbf",
+          sprite:
+            "https://smellman.github.io/creating_tiles_with_global_map_support_files/2015/mapbox_vector_tile_demo/demosites/maki-sprites/sprite",
+          sources: {
+            osm: {
+              type: "raster",
+              tiles: [
+                "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              ],
+              tileSize: 256
+            },
+            power_stations: {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  {
+                    type: "Feature",
+                    geometry: {
+                      type: "Point",
+                      coordinates: [20, 35]
+                    },
+                    properties: {
+                      label_x: 5,
+                      label_y: 5,
+                      description: "test"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          layers: [
+            {
+              id: "osm",
+              type: "raster",
+              source: "osm",
+              paint: {
+                "raster-fade-duration": 100
+              }
+            },
+            {
+              id: "point",
+              type: "circle",
+              source: "power_stations",
+              paint: {
+                "circle-radius": 10,
+                "circle-color": "#3887be"
+              }
+            },
+            {
+              id: "poi-labels",
+              type: "symbol",
+              source: "power_stations",
+              layout: {
+                "text-offset":
+                  // // uncomment to test
+                  [0, 0],
+
+                // // Expected array<number, 2> but found array<value, 2> instead
+                // [
+                //   "array",
+                //   "number",
+                //   2,
+                //   [
+                //     "literal",
+                //     [
+                //       ["number", ["get", "label_x"]],
+                //       ["number", ["get", "label_y"]]
+                //     ]
+                //   ]
+                // ],
+
+                // // Expected array<number, 2> but found array<value, 2> instead
+                // [
+                //   "literal",
+                //   [
+                //     ["number", ["get", "label_x"]],
+                //     ["number", ["get", "label_y"]]
+                //   ]
+                // ],
+
+                // // Expected array<number, 2> but found array<value, 2> instead
+                // [
+                //   "literal",
+                //   [
+                //     ["get", "label_x"],
+                //     ["get", "label_y"]
+                //   ]
+                // ],
+
+                "text-field": ["concat", "x=", ["get", "label_x"], ", ", "y=", ["get", "label_y"]]
+              }
+            }
+          ]
+        },
+        zoom: 5,
+        center: [20, 35],
+        container: "map",
+        antialias: true,
+        hash: true
+      });
+
+      map.on("load", () => {
+        console.log(map);
+      });
+    </script>
+  </body>
+</html>
